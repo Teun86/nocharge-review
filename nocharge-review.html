@@ -423,24 +423,24 @@ function renderTable() {
 }
 
 function getOverhead(r) {
-  // 1. Check direct veld (vaak bij includecolumns)
-  if (r.CFOverhead !== undefined && r.CFOverhead !== null) return r.CFOverhead;
-  if (r.cfoverhead !== undefined && r.cfoverhead !== null) return r.cfoverhead;
+  // 1. Zoek specifiek naar de meest voorkomende aliassen
+  const suspects = [
+    r.CFOverhead, r.cfoverhead, 
+    r.action_note, // Soms staat de reden in de note
+    r.category_2,  // In jouw data staat hier "Account Administration"
+    r.userdef1, r.userdef2, r.userdef3, r.userdef4, r.userdef5
+  ];
 
-  // 2. Check customfields array
-  if (r.customfields && Array.isArray(r.customfields)) {
-    const f = r.customfields.find(f => 
-      f.name === CFG.overheadField || 
-      f.label === CFG.overheadField || 
-      f.name === "CFOverhead"
-    );
-    if (f) return f.value ?? f.display ?? null;
+  for (let val of suspects) {
+    if (val && typeof val === 'string' && val.trim() !== "" && val !== "0") {
+      return val;
+    }
   }
 
-  // 3. Check fields array
-  if (r.fields && Array.isArray(r.fields)) {
-     const f = r.fields.find(f => f.name === CFG.overheadField || f.name === "CFOverhead");
-     if (f) return f.value ?? null;
+  // 2. Als we een customfields array hebben, doorzoek die dan ook
+  if (r.customfields && Array.isArray(r.customfields)) {
+    const f = r.customfields.find(f => f.value && f.value !== "");
+    if (f) return f.value;
   }
 
   return null;
