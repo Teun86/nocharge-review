@@ -359,7 +359,8 @@ async function loadData() {
 
     // Halo geeft de data soms terug in een 'tickets' of 'items' object, of direct als array
     rows = Array.isArray(data) ? data : (data.tickets || data.items || data.actions || []);
-
+    // Nieuwe regel om mee te kijken:
+    console.log("De data van de eerste rij is:", rows[0]);
     selected.clear();
     renderTable();
     setBadge('VERBONDEN', '#22c55e');
