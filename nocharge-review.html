@@ -7,577 +7,144 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:        #0f1117;
-      --surface:   #171c27;
-      --border:    #252d3d;
-      --accent:    #3b82f6;
-      --accent-dim:#1e3a5f;
-      --success:   #22c55e;
-      --danger:    #ef4444;
-      --text:      #e2e8f0;
-      --muted:     #64748b;
-      --mono:      'IBM Plex Mono', monospace;
-      --sans:      'IBM Plex Sans', sans-serif;
+      --bg: #0f1117; --surface: #171c27; --border: #252d3d;
+      --accent: #3b82f6; --accent-dim: #1e3a5f; --success: #22c55e;
+      --text: #e2e8f0; --muted: #64748b;
+      --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 14px;
-      min-height: 100vh;
-      padding: 28px;
-    }
-
-    /* ── Header ── */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-    .header-left h1 {
-      font-family: var(--mono);
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-      color: var(--text);
-    }
-    .header-left span {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 3px;
-      display: block;
-    }
-    .badge {
-      font-family: var(--mono);
-      font-size: 11px;
-      background: var(--accent-dim);
-      color: var(--accent);
-      border: 1px solid var(--accent);
-      border-radius: 4px;
-      padding: 3px 10px;
-    }
-
-    /* ── Toolbar ── */
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-      align-items: center;
-    }
-    .btn {
-      font-family: var(--sans);
-      font-size: 13px;
-      font-weight: 500;
-      padding: 7px 16px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      transition: opacity .15s, transform .1s;
-    }
-    .btn:active { transform: scale(.97); }
-    .btn:disabled { opacity: .4; cursor: default; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; padding: 28px; }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .header-left h1 { font-family: var(--mono); font-size: 18px; font-weight: 600; }
+    .badge { font-family: var(--mono); font-size: 11px; background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 3px 10px; }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; }
+    .btn { font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 7px 16px; border-radius: 6px; border: none; cursor: pointer; }
     .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover:not(:disabled) { opacity: .85; }
-    .btn-ghost {
-      background: var(--surface);
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-    .btn-ghost:hover:not(:disabled) { color: var(--text); border-color: var(--muted); }
-
-    .count-label {
-      margin-left: auto;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* ── Table ── */
-    .table-wrap {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    thead {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
-    thead th {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 11px 14px;
-      text-align: left;
-      white-space: nowrap;
-    }
-    tbody tr {
-      border-bottom: 1px solid var(--border);
-      transition: background .1s;
-    }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,.025); }
-    tbody tr.selected { background: rgba(59,130,246,.08); }
-    td {
-      padding: 12px 14px;
-      vertical-align: middle;
-    }
-    td.mono { font-family: var(--mono); font-size: 12px; }
-
-    .ticket-link {
-      color: var(--accent);
-      text-decoration: none;
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .ticket-link:hover { text-decoration: underline; }
-
-    .overhead-pill {
-      display: inline-block;
-      background: rgba(59,130,246,.12);
-      color: #93c5fd;
-      border: 1px solid rgba(59,130,246,.3);
-      border-radius: 4px;
-      font-size: 11px;
-      padding: 2px 8px;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .overhead-empty { color: var(--muted); font-style: italic; font-size: 12px; }
-
-    .checkbox-cell { width: 36px; text-align: center; }
-    input[type=checkbox] {
-      width: 15px; height: 15px;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-
-    .btn-approve-row {
-      font-size: 12px;
-      padding: 5px 12px;
-      background: rgba(34,197,94,.1);
-      color: var(--success);
-      border: 1px solid rgba(34,197,94,.3);
-      border-radius: 5px;
-      cursor: pointer;
-      font-family: var(--sans);
-      font-weight: 500;
-      transition: background .15s;
-      white-space: nowrap;
-    }
-    .btn-approve-row:hover { background: rgba(34,197,94,.2); }
-    .btn-approve-row:disabled { opacity: .4; cursor: default; }
-
-    .approved-badge {
-      font-size: 11px;
-      font-family: var(--mono);
-      color: var(--success);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* ── States ── */
-    .state-box {
-      padding: 48px;
-      text-align: center;
-      color: var(--muted);
-    }
-    .state-box .icon { font-size: 32px; margin-bottom: 12px; }
-    .state-box p { font-size: 14px; }
-    .state-box .sub { font-size: 12px; margin-top: 6px; font-family: var(--mono); color: #334155; }
-
-    .spinner {
-      width: 22px; height: 22px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .6s linear infinite;
-      display: inline-block;
-      margin-bottom: 12px;
-    }
+    .btn-ghost { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+    .table-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--surface); border-bottom: 1px solid var(--border); }
+    thead th { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 11px 14px; text-align: left; }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; vertical-align: middle; }
+    .ticket-link { color: var(--accent); text-decoration: none; font-family: var(--mono); font-weight: 600; }
+    .note-pill { display: inline-block; background: rgba(59,130,246,.12); color: #93c5fd; border: 1px solid rgba(59,130,246,.3); border-radius: 4px; font-size: 11px; padding: 2px 8px; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .spinner { width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Error banner ── */
-    .error-banner {
-      background: rgba(239,68,68,.1);
-      border: 1px solid rgba(239,68,68,.3);
-      color: #fca5a5;
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 13px;
-      margin-bottom: 16px;
-      display: none;
-    }
-
-    /* ── Bulk approve bar ── */
-    .bulk-bar {
-      display: none;
-      align-items: center;
-      gap: 12px;
-      background: var(--accent-dim);
-      border: 1px solid var(--accent);
-      border-radius: 8px;
-      padding: 10px 16px;
-      margin-bottom: 16px;
-      font-size: 13px;
-    }
-    .bulk-bar.visible { display: flex; }
-    .bulk-bar span { color: #93c5fd; font-family: var(--mono); font-size: 12px; }
+    .error-banner { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; padding: 12px 16px; margin-bottom: 16px; display: none; border-radius: 8px; }
+    .approved-badge { color: var(--success); font-family: var(--mono); font-size: 11px; }
   </style>
 </head>
 <body>
 
 <div class="header">
   <div class="header-left">
-    <h1>No Charge — Awaiting Review</h1>
-    <span>Overzicht van niet-gefactureerde uren ter goedkeuring</span>
+    <h1>No Charge Review</h1>
+    <span style="color:var(--muted); font-size:12px;">Overzicht van uren op basis van Ticket Acties</span>
   </div>
   <div class="badge" id="statusBadge">● VERBINDING MAKEN</div>
 </div>
 
 <div class="error-banner" id="errorBanner"></div>
 
-<div class="bulk-bar" id="bulkBar">
-  <span id="bulkCount">0 geselecteerd</span>
-  <button class="btn btn-primary" id="btnBulkApprove" onclick="bulkApprove()">Geselecteerde goedkeuren</button>
-</div>
-
 <div class="toolbar">
-  <button class="btn btn-ghost" id="btnRefresh" onclick="loadData()" disabled>↻ Verversen</button>
-  <button class="btn btn-ghost" onclick="toggleSelectAll()" id="btnSelectAll" disabled>Alles selecteren</button>
-  <span class="count-label" id="countLabel"></span>
+  <button class="btn btn-ghost" id="btnRefresh" onclick="loadData()">↻ Verversen</button>
+  <span id="countLabel" style="margin-left:auto; color:var(--muted); font-family:var(--mono);"></span>
 </div>
 
 <div class="table-wrap">
   <table>
     <thead>
       <tr>
-        <th class="checkbox-cell"><input type="checkbox" id="chkAll" onchange="onChkAllChange()" disabled /></th>
         <th>Ticket</th>
         <th>Klant</th>
         <th>Agent</th>
         <th>Datum</th>
         <th>Tijd</th>
-        <th>Overhead</th>
+        <th>Toelichting</th>
         <th>Actie</th>
       </tr>
     </thead>
     <tbody id="tableBody">
-      <tr>
-        <td colspan="8">
-          <div class="state-box">
-            <div class="spinner"></div>
-            <p>Verbinding maken met Halo PSA…</p>
-          </div>
-        </td>
-      </tr>
+      <tr><td colspan="7" style="text-align:center; padding:40px;"><div class="spinner"></div></td></tr>
     </tbody>
   </table>
 </div>
 
 <script>
-// ── Configuratie ──────────────────────────────────────────────
 const CFG = {
-  baseUrl:      'https://alo-psa-proxy.teunscheepers.workers.dev',
-  clientId:     '6b8056f2-b63f-47fc-bfc2-d9b60dc440fa',
-  clientSecret: 'ynZgNFks4IIx_DU93Z1P6Qdmrpzc_mxkGDT6h04W_dg',
-  chargeTypeId: 0,
-  overheadField:'CFOverhead'
+  baseUrl: 'https://alo-psa-proxy.teunscheepers.workers.dev',
+  clientId: '6b8056f2-b63f-47fc-bfc2-d9b60dc440fa',
+  clientSecret: 'ynZgNFks4IIx_DU93Z1P6Qdmrpzc_mxkGDT6h04W_dg'
 };
 
-let token       = null;
-let tokenExpiry = 0;
-let rows        = [];
-let selected    = new Set();
+let token = null;
 
-// ── Auth ─────────────────────────────────────────────────────
 async function getToken() {
-  if (token && Date.now() < tokenExpiry) return token;
   const res = await fetch(`${CFG.baseUrl}/auth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=client_credentials&client_id=${encodeURIComponent(CFG.clientId)}&client_secret=${encodeURIComponent(CFG.clientSecret)}&scope=all`
+    body: `grant_type=client_credentials&client_id=${CFG.clientId}&client_secret=${CFG.clientSecret}&scope=all`
   });
-  if (!res.ok) throw new Error(`Auth mislukt (${res.status})`);
   const d = await res.json();
-  token       = d.access_token;
-  tokenExpiry = Date.now() + (d.expires_in - 30) * 1000;
-  return token;
+  return d.access_token;
 }
 
 async function api(path) {
-  const t   = await getToken();
+  const t = await getToken();
   const res = await fetch(`${CFG.baseUrl}/api${path}`, {
     headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' }
   });
-  if (!res.ok) throw new Error(`API fout ${res.status} op ${path}`);
   return res.json();
 }
 
-async function apiPost(path, body) {
-  const t   = await getToken();
-  const res = await fetch(`${CFG.baseUrl}/api${path}`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`API fout ${res.status}: ${txt}`);
-  }
-  return res.json();
-}
-
-// ── Data laden ───────────────────────────────────────────────
 async function loadData() {
-  setBadge('LADEN…', '#f59e0b');
-  setError(null);
-  setLoading();
-  document.getElementById('btnRefresh').disabled = true;
-
+  document.getElementById('statusBadge').textContent = '● LADEN...';
   try {
-    await getToken();
-
-    // DIT IS DE MAGISCHE URL DIE JIJ HEBT GEVONDEN!
-    const data = await api(
-`/Tickets?pending_review=true&per_action=true&page_size=100&includecolumns=true&cf_display_values_only=true&chargetypeid=${CFG.chargeTypeId}`    );
-
-    // Halo geeft de data soms terug in een 'tickets' of 'items' object, of direct als array
-    rows = Array.isArray(data) ? data : (data.tickets || data.items || data.actions || []);
-    // Nieuwe regel om mee te kijken:
-    console.log("De data van de eerste rij is:", rows[0]);
-    selected.clear();
-    renderTable();
-    setBadge('VERBONDEN', '#22c55e');
-
-    document.getElementById('btnRefresh').disabled    = false;
-    document.getElementById('btnSelectAll').disabled  = false;
-    document.getElementById('chkAll').disabled        = false;
-    document.getElementById('countLabel').textContent = `${rows.length} item${rows.length !== 1 ? 's' : ''} gevonden`;
-
+    // We halen de tickets op met de filters die we in de netwerk-log zagen
+    const data = await api('/Tickets?pending_review=true&per_action=true&page_size=50');
+    const rows = Array.isArray(data) ? data : (data.tickets || []);
+    
+    renderTable(rows);
+    document.getElementById('statusBadge').textContent = '● VERBONDEN';
+    document.getElementById('statusBadge').style.color = '#22c55e';
+    document.getElementById('countLabel').textContent = `${rows.length} items`;
   } catch (e) {
-    setError(e.message);
-    setBadge('FOUT', '#ef4444');
-    setEmpty('Laden mislukt', e.message);
-    document.getElementById('btnRefresh').disabled = false;
+    document.getElementById('errorBanner').style.display = 'block';
+    document.getElementById('errorBanner').textContent = 'Fout bij laden: ' + e.message;
   }
 }
 
-// ── Renderen ─────────────────────────────────────────────────
-function renderTable() {
+function renderTable(rows) {
   const tbody = document.getElementById('tableBody');
-  if (!rows.length) {
-    setEmpty('Niets te reviewen', 'Geen No Charge items gevonden in Awaiting Review.');
-    return;
-  }
-
   tbody.innerHTML = rows.map(r => {
-    // Halo geeft nu via /Tickets 'action_id' terug voor de uren, en 'id' voor het ticket.
-    // We hebben action_id nodig om goed te keuren!
-    const actionId  = r.action_id || r.actionid || r.id; 
-    const ticketId  = r.id || r.ticket_id || r.faultid || '—';
-    const client    = r.client_name || r.area       || '—';
-    const agent     = r.agent_name  || r.actionby   || r.action_by || '—';
-    const date      = r.date        ? formatDate(r.date) : '—';
-    const time      = r.timetaken   != null ? formatTime(r.timetaken) : '—';
-    const overhead  = getOverhead(r);
-    const ticketUrl = `${CFG.baseUrl}/tickets?id=${ticketId}`;
-
+    const actionId = r.action_id || r.id;
     return `
       <tr id="row-${actionId}">
-        <td class="checkbox-cell">
-          <input type="checkbox" id="chk-${actionId}" onchange="onRowCheck(${actionId})" />
-        </td>
-        <td>
-          <a class="ticket-link" href="${ticketUrl}" target="_blank">#${ticketId}</a>
-        </td>
-        <td>${esc(client)}</td>
-        <td>${esc(agent)}</td>
-        <td class="mono">${date}</td>
-        <td class="mono">${time}</td>
-        <td>${overhead !== null
-          ? `<span class="overhead-pill" title="${esc(overhead)}">${esc(overhead)}</span>`
-          : `<span class="overhead-empty">—</span>`
-        }</td>
-        <td>
-          <button class="btn-approve-row" id="appbtn-${actionId}" onclick="approveOne(${actionId})">
-            ✓ Goedkeuren
-          </button>
-        </td>
+        <td><a class="ticket-link" href="#">#${r.id}</a></td>
+        <td>${r.client_name || '—'}</td>
+        <td>${r.action_agent_name || '—'}</td>
+        <td>${new Date(r.dateoccurred).toLocaleDateString('nl-NL')}</td>
+        <td>${r.timetaken}m</td>
+        <td><span class="note-pill">${r.action_note || '—'}</span></td>
+        <td><button class="btn btn-primary" onclick="approve(${actionId})">✓</button></td>
       </tr>`;
   }).join('');
 }
 
-function getOverhead(r) {
-  // 1. Zoek specifiek naar de meest voorkomende aliassen
-  const suspects = [
-    r.CFOverhead, r.cfoverhead, 
-    r.action_note, // Soms staat de reden in de note
-    r.category_2,  // In jouw data staat hier "Account Administration"
-    r.userdef1, r.userdef2, r.userdef3, r.userdef4, r.userdef5
-  ];
-
-  for (let val of suspects) {
-    if (val && typeof val === 'string' && val.trim() !== "" && val !== "0") {
-      return val;
-    }
-  }
-
-  // 2. Als we een customfields array hebben, doorzoek die dan ook
-  if (r.customfields && Array.isArray(r.customfields)) {
-    const f = r.customfields.find(f => f.value && f.value !== "");
-    if (f) return f.value;
-  }
-
-  return null;
-}
-
-function formatDate(d) {
-  return new Date(d).toLocaleDateString('nl-NL', { day:'2-digit', month:'2-digit', year:'numeric' });
-}
-
-function formatTime(mins) {
-  const h = Math.floor(mins / 60), m = mins % 60;
-  return h > 0 ? `${h}u ${String(m).padStart(2,'0')}m` : `${m}m`;
-}
-
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── Goedkeuren ───────────────────────────────────────────────
-async function approveOne(actionId) {
-  const btn = document.getElementById(`appbtn-${actionId}`);
-  btn.disabled   = true;
-  btn.textContent = '…';
-  try {
-    // Goedkeuren gaat (gelukkig) wél via POST /Actions!
-    await apiPost('/Actions', [{ id: actionId, reviewed: true }]);
-    markApproved(actionId);
-  } catch(e) {
-    setError(`Goedkeuren mislukt voor actie ${actionId}: ${e.message}`);
-    btn.disabled   = false;
-    btn.textContent = '✓ Goedkeuren';
-  }
-}
-
-async function bulkApprove() {
-  const btn = document.getElementById('btnBulkApprove');
-  btn.disabled = true;
-  const ids = [...selected];
-  setError(null);
-
-  for (const actionId of ids) {
-    const rowBtn = document.getElementById(`appbtn-${actionId}`);
-    if (rowBtn) { rowBtn.disabled = true; rowBtn.textContent = '…'; }
-    try {
-      await apiPost('/Actions', [{ id: actionId, reviewed: true }]);
-      markApproved(actionId);
-      selected.delete(actionId);
-    } catch(e) {
-      setError(`Fout bij actie ${actionId}: ${e.message}`);
-    }
-  }
-  selected.clear();
-  updateBulkBar();
-  btn.disabled = false;
-}
-
-function markApproved(actionId) {
-  const row    = document.getElementById(`row-${actionId}`);
-  const appBtn = document.getElementById(`appbtn-${actionId}`);
-  const chk    = document.getElementById(`chk-${actionId}`);
-  if (appBtn) appBtn.outerHTML = `<span class="approved-badge">✓ Goedgekeurd</span>`;
-  if (chk)    { chk.checked = false; chk.disabled = true; }
-  if (row)    row.style.opacity = '.45';
-}
-
-// ── Selectie ─────────────────────────────────────────────────
-function onRowCheck(actionId) {
-  const chk = document.getElementById(`chk-${actionId}`);
-  chk.checked ? selected.add(actionId) : selected.delete(actionId);
-  updateBulkBar();
-}
-
-function onChkAllChange() {
-  const chkAll = document.getElementById('chkAll');
-  rows.forEach(r => {
-    // Let op dat we hier ook de juiste actionId gebruiken voor de selectie
-    const actionId = r.action_id || r.actionid || r.id;
-    const chk = document.getElementById(`chk-${actionId}`);
-    if (chk && !chk.disabled) {
-      chk.checked = chkAll.checked;
-      chkAll.checked ? selected.add(actionId) : selected.delete(actionId);
-    }
+async function approve(id) {
+  const t = await getToken();
+  await fetch(`${CFG.baseUrl}/api/Actions`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([{ id: id, reviewed: true }])
   });
-  updateBulkBar();
+  const row = document.getElementById(`row-${id}`);
+  row.style.opacity = '0.3';
+  row.querySelector('button').disabled = true;
+  row.querySelector('button').textContent = 'OK';
 }
 
-function toggleSelectAll() {
-  const chkAll = document.getElementById('chkAll');
-  chkAll.checked = !chkAll.checked;
-  onChkAllChange();
-}
-
-function updateBulkBar() {
-  const bar = document.getElementById('bulkBar');
-  const cnt = document.getElementById('bulkCount');
-  cnt.textContent = `${selected.size} geselecteerd`;
-  bar.classList.toggle('visible', selected.size > 0);
-}
-
-// ── UI helpers ───────────────────────────────────────────────
-function setLoading() {
-  document.getElementById('tableBody').innerHTML = `
-    <tr><td colspan="8">
-      <div class="state-box">
-        <div class="spinner"></div>
-        <p>Gegevens ophalen…</p>
-      </div>
-    </td></tr>`;
-}
-
-function setEmpty(title, sub = '') {
-  document.getElementById('tableBody').innerHTML = `
-    <tr><td colspan="8">
-      <div class="state-box">
-        <div class="icon">✓</div>
-        <p>${esc(title)}</p>
-        ${sub ? `<p class="sub">${esc(sub)}</p>` : ''}
-      </div>
-    </td></tr>`;
-}
-
-function setError(msg) {
-  const el = document.getElementById('errorBanner');
-  if (!msg) { el.style.display = 'none'; return; }
-  el.textContent = '⚠ ' + msg;
-  el.style.display = 'block';
-}
-
-function setBadge(label, color) {
-  const b = document.getElementById('statusBadge');
-  b.textContent = '● ' + label;
-  b.style.color  = color;
-  b.style.borderColor = color;
-  b.style.background  = color + '22';
-}
-
-// ── Start ────────────────────────────────────────────────────
 loadData();
 </script>
 </body>
