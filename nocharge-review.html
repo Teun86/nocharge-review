@@ -118,11 +118,9 @@ async function loadData() {
 function renderTable(rows) {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = rows.map(r => {
+    // We pakken hier specifiek de note van de actie
     const actionId = r.action_id || r.id;
-    
-    // We proberen hier alle verdachte velden waar jouw tekst in kan staan
-    // Hij pakt de eerste die niet leeg is.
-    const toelichting = r.action_note || r.userdef1 || r.userdef2 || r.userdef3 || r.category_2 || r.summary || '—';
+    const toelichting = r.action_note || '—'; 
     
     return `
       <tr id="row-${actionId}">
