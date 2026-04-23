@@ -352,12 +352,13 @@ async function loadData() {
   try {
     await getToken();
 
-    // VERSIMPELDE QUERY OM 500-ERROR TE VOORKOMEN
+    // DIT IS DE MAGISCHE URL DIE JIJ HEBT GEVONDEN!
     const data = await api(
-      `/Actions?chargetypeid=${CFG.chargeTypeId}&reviewed=false&count=50`
+      `/Tickets?pending_review=true&per_action=true&page_size=100&chargetypeid=${CFG.chargeTypeId}`
     );
 
-    rows = Array.isArray(data) ? data : (data.actions || data.items || []);
+    // Halo geeft de data soms terug in een 'tickets' of 'items' object, of direct als array
+    rows = Array.isArray(data) ? data : (data.tickets || data.items || data.actions || []);
 
     selected.clear();
     renderTable();
@@ -385,8 +386,10 @@ function renderTable() {
   }
 
   tbody.innerHTML = rows.map(r => {
-    const id        = r.id;
-    const ticketId  = r.ticket_id  || r.faultid    || r.fault_id || '—';
+    // Halo geeft nu via /Tickets 'action_id' terug voor de uren, en 'id' voor het ticket.
+    // We hebben action_id nodig om goed te keuren!
+    const actionId  = r.action_id || r.actionid || r.id; 
+    const ticketId  = r.id || r.ticket_id || r.faultid || '—';
     const client    = r.client_name || r.area       || '—';
     const agent     = r.agent_name  || r.actionby   || r.action_by || '—';
     const date      = r.date        ? formatDate(r.date) : '—';
@@ -395,9 +398,9 @@ function renderTable() {
     const ticketUrl = `${CFG.baseUrl}/tickets?id=${ticketId}`;
 
     return `
-      <tr id="row-${id}">
+      <tr id="row-${actionId}">
         <td class="checkbox-cell">
-          <input type="checkbox" id="chk-${id}" onchange="onRowCheck(${id})" />
+          <input type="checkbox" id="chk-${actionId}" onchange="onRowCheck(${actionId})" />
         </td>
         <td>
           <a class="ticket-link" href="${ticketUrl}" target="_blank">#${ticketId}</a>
@@ -411,7 +414,7 @@ function renderTable() {
           : `<span class="overhead-empty">—</span>`
         }</td>
         <td>
-          <button class="btn-approve-row" id="appbtn-${id}" onclick="approveOne(${id})">
+          <button class="btn-approve-row" id="appbtn-${actionId}" onclick="approveOne(${actionId})">
             ✓ Goedkeuren
           </button>
         </td>
@@ -444,15 +447,16 @@ function esc(s) {
 }
 
 // ── Goedkeuren ───────────────────────────────────────────────
-async function approveOne(id) {
-  const btn = document.getElementById(`appbtn-${id}`);
+async function approveOne(actionId) {
+  const btn = document.getElementById(`appbtn-${actionId}`);
   btn.disabled   = true;
   btn.textContent = '…';
   try {
-    await apiPost('/Actions', [{ id, reviewed: true }]);
-    markApproved(id);
+    // Goedkeuren gaat (gelukkig) wél via POST /Actions!
+    await apiPost('/Actions', [{ id: actionId, reviewed: true }]);
+    markApproved(actionId);
   } catch(e) {
-    setError(`Goedkeuren mislukt voor actie ${id}: ${e.message}`);
+    setError(`Goedkeuren mislukt voor actie ${actionId}: ${e.message}`);
     btn.disabled   = false;
     btn.textContent = '✓ Goedkeuren';
   }
@@ -464,15 +468,15 @@ async function bulkApprove() {
   const ids = [...selected];
   setError(null);
 
-  for (const id of ids) {
-    const rowBtn = document.getElementById(`appbtn-${id}`);
+  for (const actionId of ids) {
+    const rowBtn = document.getElementById(`appbtn-${actionId}`);
     if (rowBtn) { rowBtn.disabled = true; rowBtn.textContent = '…'; }
     try {
-      await apiPost('/Actions', [{ id, reviewed: true }]);
-      markApproved(id);
-      selected.delete(id);
+      await apiPost('/Actions', [{ id: actionId, reviewed: true }]);
+      markApproved(actionId);
+      selected.delete(actionId);
     } catch(e) {
-      setError(`Fout bij actie ${id}: ${e.message}`);
+      setError(`Fout bij actie ${actionId}: ${e.message}`);
     }
   }
   selected.clear();
@@ -480,29 +484,31 @@ async function bulkApprove() {
   btn.disabled = false;
 }
 
-function markApproved(id) {
-  const row    = document.getElementById(`row-${id}`);
-  const appBtn = document.getElementById(`appbtn-${id}`);
-  const chk    = document.getElementById(`chk-${id}`);
+function markApproved(actionId) {
+  const row    = document.getElementById(`row-${actionId}`);
+  const appBtn = document.getElementById(`appbtn-${actionId}`);
+  const chk    = document.getElementById(`chk-${actionId}`);
   if (appBtn) appBtn.outerHTML = `<span class="approved-badge">✓ Goedgekeurd</span>`;
   if (chk)    { chk.checked = false; chk.disabled = true; }
   if (row)    row.style.opacity = '.45';
 }
 
 // ── Selectie ─────────────────────────────────────────────────
-function onRowCheck(id) {
-  const chk = document.getElementById(`chk-${id}`);
-  chk.checked ? selected.add(id) : selected.delete(id);
+function onRowCheck(actionId) {
+  const chk = document.getElementById(`chk-${actionId}`);
+  chk.checked ? selected.add(actionId) : selected.delete(actionId);
   updateBulkBar();
 }
 
 function onChkAllChange() {
   const chkAll = document.getElementById('chkAll');
   rows.forEach(r => {
-    const chk = document.getElementById(`chk-${r.id}`);
+    // Let op dat we hier ook de juiste actionId gebruiken voor de selectie
+    const actionId = r.action_id || r.actionid || r.id;
+    const chk = document.getElementById(`chk-${actionId}`);
     if (chk && !chk.disabled) {
       chk.checked = chkAll.checked;
-      chkAll.checked ? selected.add(r.id) : selected.delete(r.id);
+      chkAll.checked ? selected.add(actionId) : selected.delete(actionId);
     }
   });
   updateBulkBar();
