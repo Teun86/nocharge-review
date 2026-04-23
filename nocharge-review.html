@@ -354,8 +354,7 @@ async function loadData() {
 
     // DIT IS DE MAGISCHE URL DIE JIJ HEBT GEVONDEN!
     const data = await api(
-      `/Tickets?pending_review=true&per_action=true&page_size=100&chargetypeid=${CFG.chargeTypeId}`
-    );
+`/Tickets?pending_review=true&per_action=true&page_size=100&includecolumns=true&cf_display_values_only=true&chargetypeid=${CFG.chargeTypeId}`    );
 
     // Halo geeft de data soms terug in een 'tickets' of 'items' object, of direct als array
     rows = Array.isArray(data) ? data : (data.tickets || data.items || data.actions || []);
@@ -424,13 +423,26 @@ function renderTable() {
 }
 
 function getOverhead(r) {
+  // 1. Check direct veld (vaak bij includecolumns)
+  if (r.CFOverhead !== undefined && r.CFOverhead !== null) return r.CFOverhead;
+  if (r.cfoverhead !== undefined && r.cfoverhead !== null) return r.cfoverhead;
+
+  // 2. Check customfields array
   if (r.customfields && Array.isArray(r.customfields)) {
-    const f = r.customfields.find(f =>
-      f.name === CFG.overheadField || f.id === CFG.overheadField || f.label === CFG.overheadField
+    const f = r.customfields.find(f => 
+      f.name === CFG.overheadField || 
+      f.label === CFG.overheadField || 
+      f.name === "CFOverhead"
     );
     if (f) return f.value ?? f.display ?? null;
   }
-  if (r[CFG.overheadField] !== undefined) return r[CFG.overheadField];
+
+  // 3. Check fields array
+  if (r.fields && Array.isArray(r.fields)) {
+     const f = r.fields.find(f => f.name === CFG.overheadField || f.name === "CFOverhead");
+     if (f) return f.value ?? null;
+  }
+
   return null;
 }
 
