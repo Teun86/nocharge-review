@@ -119,6 +119,11 @@ function renderTable(rows) {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = rows.map(r => {
     const actionId = r.action_id || r.id;
+    
+    // We proberen hier alle verdachte velden waar jouw tekst in kan staan
+    // Hij pakt de eerste die niet leeg is.
+    const toelichting = r.action_note || r.userdef1 || r.userdef2 || r.userdef3 || r.category_2 || r.summary || '—';
+    
     return `
       <tr id="row-${actionId}">
         <td><a class="ticket-link" href="#">#${r.id}</a></td>
@@ -126,7 +131,7 @@ function renderTable(rows) {
         <td>${r.action_agent_name || '—'}</td>
         <td>${new Date(r.dateoccurred).toLocaleDateString('nl-NL')}</td>
         <td>${r.timetaken}m</td>
-        <td><span class="note-pill">${r.action_note || '—'}</span></td>
+        <td><span class="note-pill" title="${toelichting}">${toelichting}</span></td>
         <td><button class="btn btn-primary" onclick="approve(${actionId})">✓</button></td>
       </tr>`;
   }).join('');
